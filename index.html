@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>London Underground Map (Embedded)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #header {
+      font-family: 'Goudy Old Style', serif;
+      font-size: 26px;
+      font-weight: bold;
+      background: white;
+      padding: 10px;
+      text-align: left;
+    }
+    #map { height: calc(100% - 50px); }
+    .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 2px 4px; font-size: 12px; }
+    .leaflet-control-scale, .leaflet-control-northarrow {
+      margin-bottom: 10px;
+    }
+    .leaflet-control-northarrow {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 4px 6px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">London tube map</div>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map', {
+      maxBounds: [[51.28, -0.53], [51.70, 0.30]],
+      maxBoundsViscosity: 1.0
+    }).setView([51.5074, -0.1278], 10);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB'
+    }).addTo(map);
+
+    // Add scale in miles (imperial)
+    L.control.scale({position: 'bottomright', imperial: true, metric: false}).addTo(map);
+
+    // Add north arrow control
+    var north = L.control({position: 'bottomright'});
+    north.onAdd = function(map) {
+      var div = L.DomUtil.create('div', 'leaflet-control-northarrow');
+      div.innerHTML = 'N ↑';
+      return div;
+    };
+    north.addTo(map);
+
+    const lineColors = {
+      "bakerloo": "#B36305",
+      "central": "#E32017",
+      "circle": "#FFD300",
+      "district": "#00782A",
+      "hammersmith_and_city": "#F3A9BB",
+      "jubilee": "#A0A5A9",
+      "metropolitan": "#9B0056",
+      "northern": "#000000",
+      "piccadilly": "#003688",
+      "victoria": "#0098D4",
+      "waterloo_and_city": "#95CDBA"
+    };
+
+    const lineData = " + "{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"piccadilly","line":"Piccadilly","stroke":"#0450a1"},"geometry":{"type":"LineString","coordinates":[[-0.280302696832724,51.50307098636339],[-0.287151413105322,51.510248187933655]]}},{"type":"Feature","properties":{"name":"piccadilly","line":"Piccadilly","stroke":"#0450a1"},"geometry":{"type":"LineString","coordinates":[[-0.280302696832724,51.50307098636339],[-0.307040239461223,51.50164352033085]]}}]}" + ";
+
+    const stationData = " + "{"type":"FeatureCollection","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"}},"features":[{"type":"Feature","properties":{"name":"Alperton"},"geometry":{"type":"Point","coordinates":[-0.3000963,51.5408036]}},{"type":"Feature","properties":{"name":"Arnos Grove"},"geometry":{"type":"Point","coordinates":[-0.1330981,51.6164256]}},{"type":"Feature","properties":{"name":"Baker Street"},"geometry":{"type":"Point","coordinates":[-0.1567349,51.5225862]}}]}" + ";
+
+    function addLinesAndStations(lines, stations) {
+      lines.features.forEach(feature => {
+        const lineName = feature.properties.name;
+        L.geoJSON(feature, {
+          style: {
+            color: lineColors[lineName] || '#000',
+            weight: 4
+          },
+          interactive: false
+        }).addTo(map);
+      });
+
+      L.geoJSON(stations, {
+        pointToLayer: function (feature, latlng) {
+          const color = lineColors[feature.properties.line] || '#000';
+          return L.circleMarker(latlng, {
+            radius: 5,
+            fillColor: color,
+            color: color,
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 1
+          }).bindTooltip(feature.properties.name, {permanent: false, direction: 'top'});
+        }
+      }).addTo(map);
+    }
+
+    addLinesAndStations(lineData, stationData);
+
+  </script>
+</body>
+</html>
