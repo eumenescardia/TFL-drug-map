@@ -67,23 +67,8 @@
       "waterloo_and_city": "#95CDBA"
     };
 
-    const lineData = JSON.parse(`{
-      "type":"FeatureCollection",
-      "features":[
-        {"type":"Feature","properties":{"name":"piccadilly","line":"Piccadilly","stroke":"#0450a1"},"geometry":{"type":"LineString","coordinates":[[-0.280302696832724,51.50307098636339],[-0.287151413105322,51.510248187933655]]}},
-        {"type":"Feature","properties":{"name":"piccadilly","line":"Piccadilly","stroke":"#0450a1"},"geometry":{"type":"LineString","coordinates":[[-0.280302696832724,51.50307098636339],[-0.307040239461223,51.50164352033085]]}}
-      ]
-    }`);
-
-    const stationData = JSON.parse(`{
-      "type":"FeatureCollection",
-      "crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"}},
-      "features":[
-        {"type":"Feature","properties":{"name":"Alperton"},"geometry":{"type":"Point","coordinates":[-0.3000963,51.5408036]}},
-        {"type":"Feature","properties":{"name":"Arnos Grove"},"geometry":{"type":"Point","coordinates":[-0.1330981,51.6164256]}},
-        {"type":"Feature","properties":{"name":"Baker Street"},"geometry":{"type":"Point","coordinates":[-0.1567349,51.5225862]}}
-      ]
-    }`);
+    const lineDataUrl = 'https://your-username.github.io/london-tube-map/combined_lines.geojson';
+    const stationDataUrl = 'https://your-username.github.io/london-tube-map/combined_stations.geojson';
 
     function addLinesAndStations(lines, stations) {
       lines.features.forEach(feature => {
@@ -112,7 +97,10 @@
       }).addTo(map);
     }
 
-    addLinesAndStations(lineData, stationData);
+    Promise.all([
+      fetch(lineDataUrl).then(res => res.json()),
+      fetch(stationDataUrl).then(res => res.json())
+    ]).then(([lines, stations]) => addLinesAndStations(lines, stations));
   </script>
 </body>
 </html>
