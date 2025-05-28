@@ -32,45 +32,27 @@
 <body>
   <div id="header">London tube map</div>
   <div id="map"></div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js">Promise.all([
-  fetch(lineDataUrl).then(res => res.json()),
-  fetch(stationDataUrl).then(res => res.json())
-]).then(([lines, stations]) => {
-  lines.features.forEach(feature => {
-    const lineName = feature.properties.name;
-    L.geoJSON({
-      type: 'Feature',
-      geometry: feature.geometry,
-      properties: feature.properties
-    }, {
-      style: {
-        color: lineColors[lineName] || '#000',
-        weight: 4
-      },
-      interactive: false
-    }).addTo(map);
-  });
 
-  L.geoJSON(stations, {
-    pointToLayer: function (feature, latlng) {
-      const color = lineColors[feature.properties.line] || '#000';
-      return L.circleMarker(latlng, {
-        radius: 5,
-        fillColor: color,
-        color: color,
-        weight: 0.5,
-        opacity: 1,
-        fillOpacity: 1
-      }).bindTooltip(feature.properties.name, {permanent: false, direction: 'top'});
-    }
-  }).addTo(map);
-}).catch(err => {
-  console.error('Failed to load map data:', err);
-  alert('Map failed to load');
-});
-</script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    var map = L.map('map', {
+    const lineColors = {
+      "bakerloo": "#B36305",
+      "central": "#E32017",
+      "circle": "#FFD300",
+      "district": "#00782A",
+      "hammersmith_and_city": "#F3A9BB",
+      "jubilee": "#A0A5A9",
+      "metropolitan": "#9B0056",
+      "northern": "#000000",
+      "piccadilly": "#003688",
+      "victoria": "#0098D4",
+      "waterloo_and_city": "#95CDBA"
+    };
+
+    const lineDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/data-lines.json';
+    const stationDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/data-stations.json';
+
+    const map = L.map('map', {
       maxBounds: [[51.28, -0.53], [51.70, 0.30]],
       maxBoundsViscosity: 1.0
     }).setView([51.5074, -0.1278], 10);
@@ -89,26 +71,42 @@
     };
     north.addTo(map);
 
-    const lineColors = {
-      "bakerloo": "#B36305",
-      "central": "#E32017",
-      "circle": "#FFD300",
-      "district": "#00782A",
-      "hammersmith_and_city": "#F3A9BB",
-      "jubilee": "#A0A5A9",
-      "metropolitan": "#9B0056",
-      "northern": "#000000",
-      "piccadilly": "#003688",
-      "victoria": "#0098D4",
-      "waterloo_and_city": "#95CDBA"
-    };
+    Promise.all([
+      fetch(lineDataUrl).then(res => res.json()),
+      fetch(stationDataUrl).then(res => res.json())
+    ]).then(([lines, stations]) => {
+      lines.features.forEach(feature => {
+        const lineName = feature.properties.name;
+        L.geoJSON({
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: feature.properties
+        }, {
+          style: {
+            color: lineColors[lineName] || '#000',
+            weight: 4
+          },
+          interactive: false
+        }).addTo(map);
+      });
 
-    const lineDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/data-lines.json';
-    const stationDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/data-stations.json';
-
-    
-
-    
+      L.geoJSON(stations, {
+        pointToLayer: function (feature, latlng) {
+          const color = lineColors[feature.properties.line] || '#000';
+          return L.circleMarker(latlng, {
+            radius: 5,
+            fillColor: color,
+            color: color,
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 1
+          }).bindTooltip(feature.properties.name, {permanent: false, direction: 'top'});
+        }
+      }).addTo(map);
+    }).catch(err => {
+      console.error('Failed to load map data:', err);
+      alert('Map failed to load');
+    });
   </script>
 </body>
 </html>
