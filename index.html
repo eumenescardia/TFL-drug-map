@@ -72,19 +72,19 @@
 
     function addLinesAndStations(lines, stations) {
       lines.features.forEach(feature => {
-  const lineName = feature.properties.name;
-  L.geoJSON({
-    type: 'Feature',
-    geometry: feature.geometry,
-    properties: feature.properties
-  }, {
-    style: {
-      color: lineColors[lineName] || '#000',
-      weight: 4
-    },
-    interactive: false
-  }).addTo(map);
-});
+        const lineName = feature.properties.name;
+        L.geoJSON({
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: feature.properties
+        }, {
+          style: {
+            color: lineColors[lineName] || '#000',
+            weight: 4
+          },
+          interactive: false
+        }).addTo(map);
+      });
 
       L.geoJSON(stations, {
         pointToLayer: function (feature, latlng) {
@@ -102,9 +102,19 @@
     }
 
     Promise.all([
-      fetch(lineDataUrl).then(res => res.json()),
-      fetch(stationDataUrl).then(res => res.json())
-    ]).then(([lines, stations]) => addLinesAndStations(lines, stations));
+      fetch(lineDataUrl).then(res => {
+        if (!res.ok) throw new Error('Failed to load lines.geojson');
+        return res.json();
+      }),
+      fetch(stationDataUrl).then(res => {
+        if (!res.ok) throw new Error('Failed to load stations.geojson');
+        return res.json();
+      })
+    ]).then(([lines, stations]) => addLinesAndStations(lines, stations))
+      .catch(err => {
+        console.error('Map failed to load:', err);
+        alert('Map data could not be loaded. Check the console for errors.');
+      });
   </script>
 </body>
 </html>
