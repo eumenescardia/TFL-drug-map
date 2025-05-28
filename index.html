@@ -67,20 +67,24 @@
       "waterloo_and_city": "#95CDBA"
     };
 
-    const lineDataUrl = 'https://eumenescardia.github.io/london-tube-map/combined_lines.geojson';
-    const stationDataUrl = 'https://eumenescardia.github.io/london-tube-map/combined_stations.geojson';
+    const lineDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/combined_lines.geojson';
+    const stationDataUrl = 'https://eumenescardia.github.io/TFL-drug-map/combined_stations.geojson';
 
     function addLinesAndStations(lines, stations) {
       lines.features.forEach(feature => {
-        const lineName = feature.properties.name;
-        L.geoJSON(feature, {
-          style: {
-            color: lineColors[lineName] || '#000',
-            weight: 4
-          },
-          interactive: false
-        }).addTo(map);
-      });
+  const lineName = feature.properties.name;
+  L.geoJSON({
+    type: 'Feature',
+    geometry: feature.geometry,
+    properties: feature.properties
+  }, {
+    style: {
+      color: lineColors[lineName] || '#000',
+      weight: 4
+    },
+    interactive: false
+  }).addTo(map);
+});
 
       L.geoJSON(stations, {
         pointToLayer: function (feature, latlng) {
