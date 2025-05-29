@@ -44,15 +44,24 @@
     L.control.scale({position:'bottomright',imperial:true,metric:false}).addTo(map);
     L.control({position:'bottomright',onAdd:function(){const d=L.DomUtil.create('div','leaflet-control-northarrow');d.innerHTML='N ↑';return d;}}).addTo(map);
 
-    // Data promises
-    const linesPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json')
-      .then(r=>r.ok?r.json():Promise.reject('Lines missing'));
-    const stationsPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json')
-      .then(r=>r.ok?r.json():Promise.reject('Stations missing'));
-    const itemsPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json')
-      .then(r=>r.ok?r.json():[]).catch(()=>[]);
+    // Data promises with debug logs
+console.log('Starting data fetch...');
+const linesUrl = 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json';
+const stationsUrl = 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json';
+const itemsUrl = 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json';
+console.log('Lines URL:', linesUrl);
+console.log('Stations URL:', stationsUrl);
+console.log('Items URL:', itemsUrl);
 
-    Promise.all([linesPromise,stationsPromise,itemsPromise])
+const linesPromise = fetch(linesUrl)
+  .then(r => { console.log('Lines fetch status:', r.status, r.ok); if (!r.ok) throw new Error('Lines missing'); return r.json(); });
+const stationsPromise = fetch(stationsUrl)
+  .then(r => { console.log('Stations fetch status:', r.status, r.ok); if (!r.ok) throw new Error('Stations missing'); return r.json(); });
+const itemsPromise = fetch(itemsUrl)
+  .then(r => { console.log('Items fetch status:', r.status, r.ok); return r.ok ? r.json() : []; })
+  .catch(e => { console.error('Items fetch error:', e); return []; });
+
+Promise.all([linesPromise, stationsPromise, itemsPromise])([linesPromise,stationsPromise,itemsPromise])
       .then(([lines,stations,items]) => {
         // Build items map using correct JSON keys
         const itemsMap = {};
