@@ -13,52 +13,13 @@
       display: flex;
       flex-direction: column;
     }
-    #header {
-      font-family: 'Goudy Old Style', serif;
-      font-size: 26px;
-      font-weight: bold;
-      background: white;
-      padding: 10px;
-      text-align: left;
-    }
-    #subheader {
-      font-family: 'Goudy Old Style', serif;
-      font-size: 14px;
-      font-weight: normal;
-      background: white;
-      padding: 0 10px 10px;
-      text-align: left;
-    }
-    #map {
-      flex: 1;
-    }
-    #attribution {
-      font-family: 'Goudy Old Style', serif;
-      font-size: 10px;
-      background: white;
-      text-align: center;
-      padding: 4px 0;
-    }
-    .leaflet-tooltip {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 4px 6px;
-      font-size: 12px;
-    }
-    .leaflet-tooltip strong {
-      display: block;
-      margin-bottom: 2px;
-    }
-    .leaflet-control-scale, .leaflet-control-northarrow {
-      margin-bottom: 10px;
-    }
-    .leaflet-control-northarrow {
-      background: rgba(255,255,255,0.8);
-      padding: 4px 6px;
-      font-size: 14px;
-      font-weight: bold;
-      border-radius: 3px;
-    }
+    #header { font-family: 'Goudy Old Style', serif; font-size: 26px; font-weight: bold; background: white; padding: 10px; text-align: left; }
+    #subheader { font-family: 'Goudy Old Style', serif; font-size: 14px; background: white; padding: 0 10px 10px; text-align: left; }
+    #map { flex: 1; }
+    #attribution { font-family: 'Goudy Old Style', serif; font-size: 10px; background: white; text-align: center; padding: 4px 0; }
+    .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 4px 6px; font-size: 12px; }
+    .leaflet-tooltip strong { display: block; margin-bottom: 2px; }
+    .leaflet-control-northarrow { background: rgba(255,255,255,0.8); padding: 4px 6px; font-size: 14px; font-weight: bold; border-radius: 3px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -66,86 +27,45 @@
   <div id="subheader">Drugs confiscated or recorded as lost property on the London Underground since 2020</div>
   <div id="map"></div>
   <div id="attribution">Map: The Spectator • Source: FOI for TFL</div>
-
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Configuration
-    const lineColors = {
-      bakerloo: "#B36305", central: "#E32017", circle: "#FFD300", district: "#00782A",
-      hammersmith_and_city: "#F3A9BB", jubilee: "#A0A5A9", metropolitan: "#9B0056",
-      northern: "#000000", piccadilly: "#003688", victoria: "#0098D4", waterloo_and_city: "#95CDBA"
-    };
+    // Helpers
+    const lineColors = { bakerloo: '#B36305', central: '#E32017', circle: '#FFD300', district: '#00782A', hammersmith_and_city: '#F3A9BB', jubilee: '#A0A5A9', metropolitan: '#9B0056', northern: '#000000', piccadilly: '#003688', victoria: '#0098D4', waterloo_and_city: '#95CDBA' };
     const priorityOrder = ['northern','victoria','central','bakerloo','metropolitan'];
-    function normalize(name) {
-      return name.toLowerCase().replace(/ & /g,' and ').replace(/[\s/]+/g,'_').replace(/_+/g,'_');
-    }
+    function normalize(name) { return name.toLowerCase().replace(/ & /g,' and ').replace(/[\s/]+/g,'_').replace(/_+/g,'_'); }
 
-    // Initialize map
-    const map = L.map('map', { minZoom: 11, maxBoundsViscosity:1.0 })
-      .setView([51.5074, -0.1278], 11);
-    const latFactor = 1/111000, lonFactor = 1/(111000 * Math.cos(51.5074 * Math.PI/180));
-    const buf = 2000;
-    const bounds = L.latLngBounds(
-      [51.28 - buf*latFactor, -0.53 - buf*lonFactor],
-      [51.70 + buf*latFactor, 0.30 + buf*lonFactor]
-    );
-    map.setMaxBounds(bounds);
+    // Init map
+    const map = L.map('map',{minZoom:11, maxBoundsViscosity:1.0}).setView([51.5074,-0.1278],11);
+    const bufM=2000, latF=1/111000, lonF=1/(111000*Math.cos(51.5074*Math.PI/180));
+    map.setMaxBounds([[51.28-bufM*latF,-0.53-bufM*lonF],[51.70+bufM*latF,0.30+bufM*lonF]]);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB'}).addTo(map);
+    L.control.scale({position:'bottomright',imperial:true,metric:false}).addTo(map);
+    var north=L.control({position:'bottomright'});
+    north.onAdd=()=>{var d=L.DomUtil.create('div','leaflet-control-northarrow');d.innerHTML='N ↑';return d;};north.addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
-    L.control.scale({ position:'bottomright', imperial:true, metric:false }).addTo(map);
-    const north = L.control({position:'bottomright'});
-    north.onAdd = m => { const d = L.DomUtil.create('div','leaflet-control-northarrow'); d.innerHTML='N ↑'; return d; };
-    north.addTo(map);
-
-    // Fetch JSON files
-    const urls = {
-      lines: 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json',
-      stations: 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json',
-      items: 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json'
-    };
-    Promise.all([
-      fetch(urls.lines).then(r=>r.ok? r.json(): Promise.reject('Lines missing')),
-      fetch(urls.stations).then(r=>r.ok? r.json(): Promise.reject('Stations missing')),
-      fetch(urls.items).then(r=>r.ok? r.json(): Promise.resolve([])).catch(()=>[])
-    ]).then(([lines, stations, items]) => {
-      // Build itemsMap
-      const itemsMap = {};
-      items.forEach(({Station, Item, Count}) => {
-        const key = normalize(Station) === 'hammersmith' ? 'hammersmith' : normalize(Station);
-        itemsMap[key] = itemsMap[key] || [];
-        itemsMap[key].push({item:Item, count:Count});
-      });
-
+    // Fetch data
+    const urls={lines:'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json',stations:'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json',items:'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json'};
+    Promise.all([fetch(urls.lines).then(r=>r.ok?r.json():Promise.reject('Lines missing')), fetch(urls.stations).then(r=>r.ok?r.json():Promise.reject('Stations missing')), fetch(urls.items).then(r=>r.ok?r.json():[]).catch(()=>[])])
+    .then(([lines,stations,items])=>{
+      // Items map
+      const itemsMap={}; items.forEach(({Station,Item,Count})=>{const key=normalize(Station).startsWith('hammersmith')?'hammersmith':normalize(Station); (itemsMap[key]=itemsMap[key]||[]).push({item:Item,count:Count});});
+      // Save original stations
+      const allSt=stations.features.slice();
       // Draw lines
-      lines.features.forEach(f => {
-        L.geoJSON(f, { style:{ color: lineColors[normalize(f.properties.name)]||'#000', weight:4 }, interactive:false }).addTo(map);
+      lines.features.forEach(f=>{L.geoJSON(f,{style:{color:lineColors[normalize(f.properties.name)]||'#000',weight:4},interactive:false}).addTo(map);});
+      // Draw stations except hammersmith
+      const remove=['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
+      stations.features.filter(f=>!normalize(f.properties.name).startsWith('hammersmith')&&!remove.includes(f.properties.name)).forEach(f=>{
+        const p=f.properties, latlng=[f.geometry.coordinates[1],f.geometry.coordinates[0]];
+        const linesArr=[].concat(p.lines||p.line||[]);
+        const pick=priorityOrder.find(p=>linesArr.map(normalize).includes(p))||normalize(linesArr[0]||'');
+        let html=`<strong>${p.name}</strong>`; (itemsMap[normalize(p.name)]||[]).forEach(it=>html+=`<br>${it.count}x ${it.item}`);
+        L.circleMarker(latlng,{radius:5,fillColor:lineColors[pick]||'#000',color:lineColors[pick]||'#000',weight:0.5,opacity:1,fillOpacity:1}).bindTooltip(html,{direction:'top'}).addTo(map);
       });
-
-      // Draw stations
-      stations.features.forEach(f => {
-        const props=f.properties;
-        if (normalize(props.name)==='hammersmith') return; // skip merged, draw later
-        if (['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'].includes(props.name)) return;
-        const latlng=[f.geometry.coordinates[1],f.geometry.coordinates[0]];
-        const linesArr= [].concat(props.lines||props.line||[]);
-        const pick = priorityOrder.find(p=> linesArr.map(normalize).includes(p)) || normalize(linesArr[0]||'');
-        const col = lineColors[pick]||'#000';
-        let html=`<strong>${props.name}</strong>`;
-        (itemsMap[normalize(props.name)]||[]).forEach(it=> html+=`<br>${it.count}x ${it.item}`);
-        L.circleMarker(latlng,{radius:5,fillColor:col,color:col,weight:0.5,opacity:1,fillOpacity:1})
-          .bindTooltip(html,{direction:'top'}).addTo(map);
-      });
-
       // Draw merged Hammersmith
-      const hmFeat = stations.features.find(f=> normalize(f.properties.name)==='hammersmith');
-      if (hmFeat) {
-        const latlng=[hmFeat.geometry.coordinates[1],hmFeat.geometry.coordinates[0]];
-        let html=`<strong>Hammersmith</strong>`;
-        (itemsMap['hammersmith']||[]).forEach(it=> html+=`<br>${it.count}x ${it.item}`);
-        L.circleMarker(latlng,{radius:5,fillColor:lineColors['hammersmith_and_city'],color:lineColors['hammersmith_and_city'],weight:0.5,opacity:1,fillOpacity:1})
-          .bindTooltip(html,{direction:'top'}).addTo(map);
-      }
-    }).catch(e=>{console.error(e); alert('Map failed: '+e);} );
+      const hmFeat=allSt.find(f=>normalize(f.properties.name).startsWith('hammersmith'));
+      if(hmFeat){const [lon,lat]=hmFeat.geometry.coordinates; let html=`<strong>Hammersmith</strong>`; (itemsMap['hammersmith']||[]).forEach(it=>html+=`<br>${it.count}x ${it.item}`); L.circleMarker([lat,lon],{radius:5,fillColor:lineColors['hammersmith_and_city'],color:lineColors['hammersmith_and_city'],weight:0.5,opacity:1,fillOpacity:1}).bindTooltip(html,{direction:'top'}).addTo(map);}  
+    }).catch(e=>{console.error(e);alert('Map failed: '+e);});
   </script>
 </body>
 </html>
