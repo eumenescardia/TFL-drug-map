@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Drugs on the Underground (Embedded)</title>
+  <title>London Underground Map (Embedded)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -14,7 +14,7 @@
       flex-direction: column;
     }
     #header {
-      font-family: 'Roboto', serif;
+      font-family: 'Goudy Old Style', serif;
       font-size: 26px;
       font-weight: bold;
       background: white;
@@ -22,7 +22,7 @@
       text-align: left;
     }
     #subheader {
-      font-family: 'Roboto', serif;
+      font-family: 'Goudy Old Style', serif;
       font-size: 14px;
       font-weight: normal;
       background: white;
@@ -33,10 +33,10 @@
       flex: 1;
     }
     #attribution {
-      font-family: 'Roboto', serif;
-      font-size: 14px;
+      font-family: 'Goudy Old Style', serif;
+      font-size: 10px;
       background: white;
-      text-align: left;
+      text-align: center;
       padding: 4px 0;
     }
     .leaflet-tooltip {
@@ -62,7 +62,7 @@
   </style>
 </head>
 <body>
-  <div id="header">Going underground</div>
+  <div id="header">London tube map</div>
   <div id="subheader">Drugs confiscated or recorded as lost property on the London Underground since 2020</div>
   <div id="map"></div>
   <div id="attribution">Map: The Spectator • Source: FOI for TFL</div>
@@ -106,6 +106,7 @@
       attribution: '&copy; CartoDB'
     }).addTo(map);
     L.control.scale({ position: 'bottomright', imperial: true, metric: false }).addTo(map);
+
     var north = L.control({ position: 'bottomright' });
     north.onAdd = function(map) {
       var d = L.DomUtil.create('div', 'leaflet-control-northarrow');
@@ -125,15 +126,26 @@
 
     Promise.all([linesPromise, stationsPromise, itemsPromise])
       .then(([lines, stations, items]) => {
+        // Build items map and group Hammersmith variants
         const itemsMap = {};
         items.forEach(row => {
-          if (!itemsMap[row.Station]) itemsMap[row.Station] = [];
-          itemsMap[row.Station].push({ item: row.Item, count: row.Count });
+          let key = normalize(row.Station);
+          if (key.startsWith('hammersmith')) key = 'hammersmith';
+          if (!itemsMap[key]) itemsMap[key] = [];
+          itemsMap[key].push({ item: row.Item, count: row.Count });
         });
 
-        const removeList = ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
-        stations.features = stations.features.filter(f => !removeList.includes(f.properties.name));
+        // Capture Hammersmith (District) feature for combined marker
+        const hmFeature = stations.features.find(f => f.properties.name === 'Hammersmith (District)');
 
+        // Filter out unwanted and both Hammersmith stations
+        const removeList = ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
+        stations.features = stations.features.filter(f => {
+          const n = f.properties.name;
+          return !removeList.includes(n) && !n.startsWith('Hammersmith');
+        });
+
+        // Draw lines
         lines.features.forEach(f => {
           L.geoJSON(f, {
             style: { color: lineColors[normalize(f.properties.name)] || '#000', weight: 4 },
@@ -141,6 +153,7 @@
           }).addTo(map);
         });
 
+        // Draw remaining stations
         L.geoJSON(stations, {
           pointToLayer: (feat, latlng) => {
             const props = feat.properties;
@@ -150,12 +163,29 @@
             const col = lineColors[pick] || '#000';
 
             let html = `<strong>${props.name}</strong>`;
-            (itemsMap[props.name] || []).forEach(it => { html += `<br>${it.count}x ${it.item}`; });
+            (itemsMap[normalize(props.name)] || []).forEach(it => { html += `<br>${it.count}x ${it.item}`; });
 
             return L.circleMarker(latlng, { radius: 5, fillColor: col, color: col, weight: 0.5, opacity: 1, fillOpacity: 1 })
               .bindTooltip(html, { permanent: false, direction: 'top' });
           }
         }).addTo(map);
+
+        // Add combined Hammersmith marker
+        if (hmFeature) {
+          const coords = hmFeature.geometry.coordinates;
+          const latlng = [coords[1], coords[0]];
+          const htmlParts = [`<strong>Hammersmith</strong>`];
+          (itemsMap['hammersmith'] || []).forEach(it => { htmlParts.push(`${it.count}x ${it.item}`); });
+          const marker = L.circleMarker(latlng, {
+            radius: 5,
+            fillColor: lineColors['hammersmith_and_city'],
+            color: lineColors['hammersmith_and_city'],
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 1
+          }).addTo(map);
+          marker.bindTooltip(htmlParts.join('<br>'), { permanent: false, direction: 'top' });
+        }
       })
       .catch(e => { console.error(e); alert('Map failed: ' + e); });
   </script>
