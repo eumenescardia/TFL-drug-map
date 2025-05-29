@@ -7,24 +7,12 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
-    #header {
-      font-family: 'Goudy Old Style', serif;
-      font-size: 26px;
-      font-weight: bold;
-      background: white;
-      padding: 10px;
-      text-align: left;
-    }
+    #header { font-family: 'Goudy Old Style', serif; font-size: 26px; font-weight: bold; background: white; padding: 10px; text-align: left; }
     #map { height: calc(100% - 50px); }
-    .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 2px 4px; font-size: 12px; }
+    .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 4px 6px; font-size: 12px; }
+    .leaflet-tooltip strong { display: block; margin-bottom: 2px; }
     .leaflet-control-scale, .leaflet-control-northarrow { margin-bottom: 10px; }
-    .leaflet-control-northarrow {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 4px 6px;
-      font-size: 14px;
-      font-weight: bold;
-      border-radius: 3px;
-    }
+    .leaflet-control-northarrow { background: rgba(255,255,255,0.8); padding: 4px 6px; font-size: 14px; font-weight: bold; border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -33,73 +21,68 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    // Line colors
     const lineColors = {
-      bakerloo: "#B36305",
-      central: "#E32017",
-      circle: "#FFD300",
-      district: "#00782A",
-      hammersmith_and_city: "#F3A9BB",
-      jubilee: "#A0A5A9",
-      metropolitan: "#9B0056",
-      northern: "#000000",
-      piccadilly: "#003688",
-      victoria: "#0098D4",
-      waterloo_and_city: "#95CDBA"
+      bakerloo: "#B36305", central: "#E32017", circle: "#FFD300", district: "#00782A",
+      hammersmith_and_city: "#F3A9BB", jubilee: "#A0A5A9", metropolitan: "#9B0056",
+      northern: "#000000", piccadilly: "#003688", victoria: "#0098D4", waterloo_and_city: "#95CDBA"
     };
-
-    const priorityOrder = ['northern', 'victoria', 'central', 'bakerloo', 'metropolitan'];
+    const priorityOrder = ['northern','victoria','central','bakerloo','metropolitan'];
 
     function normalize(name) {
-      return name.toLowerCase()
-                 .replace(/ & /g, ' and ')
-                 .replace(/[\s/]+/g, '_')
-                 .replace(/_+/g, '_');
+      return name.toLowerCase().replace(/ & /g,' and ').replace(/[\s/]+/g,'_').replace(/_+/g,'_');
     }
 
+    // Map setup
     const initialCenter = [51.5074, -0.1278], initialZoom = 10;
     const latFactor = 1/111000, lonFactor = 1/(111000 * Math.cos(initialCenter[0] * Math.PI/180));
-    const buf = 2000; const latBuf = buf*latFactor, lonBuf = buf*lonFactor;
-    const sw0 = [51.28, -0.53], ne0 = [51.70, 0.30];
-    const bounds = L.latLngBounds([sw0[0]-latBuf, sw0[1]-lonBuf], [ne0[0]+latBuf, ne0[1]+lonBuf]);
-    const map = L.map('map', { maxBounds: bounds, maxBoundsViscosity: 1.0, minZoom: initialZoom }).setView(initialCenter, initialZoom);
+    const buf = 2000, latBuf = buf*latFactor, lonBuf = buf*lonFactor;
+    const sw0 = [51.28,-0.53], ne0 = [51.70,0.30];
+    const bounds = L.latLngBounds([sw0[0]-latBuf,sw0[1]-lonBuf],[ne0[0]+latBuf,ne0[1]+lonBuf]);
+    const map = L.map('map',{maxBounds:bounds,maxBoundsViscosity:1.0,minZoom:initialZoom}).setView(initialCenter,initialZoom);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'&copy; CartoDB'}).addTo(map);
+    L.control.scale({position:'bottomright',imperial:true,metric:false}).addTo(map);
+    L.control({position:'bottomright',onAdd:function(){const d=L.DomUtil.create('div','leaflet-control-northarrow');d.innerHTML='N ↑';return d;}}).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { attribution:'&copy; CartoDB' }).addTo(map);
-    L.control.scale({ position:'bottomright', imperial:true, metric:false }).addTo(map);
-    L.control({ position:'bottomright', onAdd: function() { var d=L.DomUtil.create('div','leaflet-control-northarrow'); d.innerHTML = 'N ↑'; return d; } }).addTo(map);
+    // Data promises
+    const linesPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json')
+      .then(r=>r.ok?r.json():Promise.reject('Lines missing'));
+    const stationsPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json')
+      .then(r=>r.ok?r.json():Promise.reject('Stations missing'));
+    const itemsPromise = fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json')
+      .then(r=>r.ok?r.json():[]).catch(()=>[]);
 
-    Promise.all([
-      fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-lines.json')
-        .then(r => r.ok ? r.json() : Promise.reject('Lines missing')),
-      fetch('https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json')
-        .then(r => r.ok ? r.json() : Promise.reject('Stations missing'))
-    ])
-    .then(([lines, stations]) => {
-      const removeList = ['West Drayton', 'Twickenham', 'Gospel Oak', 'Stamford Hill', 'Forest Gate'];
-      stations.features = stations.features.filter(f => !removeList.includes(f.properties.name));
-
-      lines.features.forEach(f => {
-        L.geoJSON(f, { style:{ color: lineColors[normalize(f.properties.name)] || '#000', weight:4 }, interactive:false }).addTo(map);
-      });
-
-      L.geoJSON(stations, { pointToLayer: (feat, latlng) => {
+    Promise.all([linesPromise,stationsPromise,itemsPromise])
+      .then(([lines,stations,items]) => {
+        // Build items map using correct JSON keys
+        const itemsMap = {};
+        items.forEach(row=>{
+          const station = row.Station;
+          if(!itemsMap[station]) itemsMap[station] = [];
+          itemsMap[station].push({item: row.Item, count: row.Count});
+        });
+        // Remove specific stations
+        const removeList = ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
+        stations.features = stations.features.filter(f=>!removeList.includes(f.properties.name));
+        // Draw lines
+        lines.features.forEach(f=>{
+          L.geoJSON(f,{style:{color:lineColors[normalize(f.properties.name)]||'#000',weight:4},interactive:false}).addTo(map);
+        });
+        // Draw stations
+        L.geoJSON(stations,{pointToLayer:(feat,latlng)=>{
           const props = feat.properties;
-          let arr = props.lines || props.line || [];
-          arr = Array.isArray(arr) ? arr : [arr];
-          const norms = arr.map(normalize);
-          const pick = priorityOrder.find(p => norms.includes(p)) || norms[0] || '';
-          const col = lineColors[pick] || '#000';
-
-          return L.circleMarker(latlng, {
-            radius: 5,
-            fillColor: col,
-            color: col,
-            weight: 0.5,
-            opacity: 1,
-            fillOpacity: 1
-          }).bindTooltip(props.name, { permanent:false, direction:'top' });
-      }}).addTo(map);
-    })
-    .catch(e => { console.error(e); alert('Map failed: ' + e); });
+          // color by priority
+          let arr = props.lines||props.line||[]; arr=Array.isArray(arr)?arr:[arr];
+          const pick = priorityOrder.find(p=>arr.map(normalize).includes(p))||normalize(arr[0]||'');
+          const col = lineColors[pick]||'#000';
+          // tooltip
+          let html = `<strong>${props.name}</strong>`;
+          (itemsMap[props.name]||[]).forEach(it=>{html+=`<br>${it.count}x ${it.item}`;});
+          return L.circleMarker(latlng,{radius:5,fillColor:col,color:col,weight:0.5,opacity:1,fillOpacity:1})
+            .bindTooltip(html,{permanent:false,direction:'top'});
+        }}).addTo(map);
+      })
+      .catch(e=>{console.error(e);alert('Map failed: '+e);} );
   </script>
 </body>
 </html>
