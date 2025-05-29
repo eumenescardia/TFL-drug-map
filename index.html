@@ -135,11 +135,24 @@
           itemsMap[key].push({ item: row.Item, count: row.Count });
         });
 
-        // Capture Hammersmith (District) feature for combined marker
-        const hmFeature = stations.features.find(f => f.properties.name === 'Hammersmith (District)');
+        // Keep a copy of all station features before filtering for Hammersmith
+        const allStations = stations.features.slice();
+        // Find district station feature by line membership
+        const hmFeature = allStations.find(f => {
+          const lines = f.properties.lines || f.properties.line || [];
+          const arr = Array.isArray(lines) ? lines : [lines];
+          return arr.map(normalize).includes('district');
+        });
 
         // Filter out unwanted and both Hammersmith stations
         const removeList = ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
+        stations.features = stations.features.filter(f => {
+          const n = normalize(f.properties.name);
+          // Remove Hammersmith variants by normalized key
+          if (n.startsWith('hammersmith')) return false;
+          // Remove other unwanted
+          return !removeList.map(normalize).includes(normalize(f.properties.name));
+        }); ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
         stations.features = stations.features.filter(f => {
           const n = f.properties.name;
           return !removeList.includes(n) && !n.startsWith('Hammersmith');
