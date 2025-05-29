@@ -19,9 +19,7 @@
     }
     #map { height: calc(100% - 50px); }
     .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 2px 4px; font-size: 12px; }
-    .leaflet-control-scale, .leaflet-control-northarrow {
-      margin-bottom: 10px;
-    }
+    .leaflet-control-scale, .leaflet-control-northarrow { margin-bottom: 10px; }
     .leaflet-control-northarrow {
       background: rgba(255, 255, 255, 0.8);
       padding: 4px 6px;
@@ -51,106 +49,47 @@
       waterloo_and_city: "#95CDBA"
     };
 
-    // Define initial view parameters
-    const initialCenter = [51.5074, -0.1278];
-    const initialZoom = 10;
+    // Priority normalized keys
+    const priorityOrder = ['northern', 'victoria', 'central', 'bakerloo', 'metropolitan'];
 
-    // Calculate ~2km buffer in degrees
-    const latFactor = 1 / 111000;
-    const lonFactor = 1 / (111000 * Math.cos(initialCenter[0] * Math.PI / 180));
-    const bufferMeters = 2000;
-    const latBuffer = bufferMeters * latFactor;
-    const lonBuffer = bufferMeters * lonFactor;
+    // Normalize names from data to keys
+    function normalize(name) {
+      return name.toLowerCase()
+                 .replace(/ & /g, ' and ')
+                 .replace(/[\s/]+/g, '_')
+                 .replace(/_+/g, '_');
+    }
 
-    // Original bounds
-    const origSW = [51.28, -0.53];
-    const origNE = [51.70, 0.30];
+    // Map setup (bounds, zoom, etc.)
+    const initialCenter = [51.5074, -0.1278], initialZoom = 10;
+    const latFactor = 1/111000, lonFactor = 1/(111000 * Math.cos(initialCenter[0] * Math.PI/180));
+    const buf = 2000; const latBuf = buf*latFactor, lonBuf = buf*lonFactor;
+    const sw0 = [51.28, -0.53], ne0 = [51.70, 0.30];
+    const bounds = L.latLngBounds([sw0[0]-latBuf, sw0[1]-lonBuf], [ne0[0]+latBuf, ne0[1]+lonBuf]);
+    const map = L.map('map', { maxBounds: bounds, maxBoundsViscosity: 1.0, minZoom: initialZoom }).setView(initialCenter, initialZoom);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{ attribution:'&copy; CartoDB'}).addTo(map);
+    L.control.scale({position:'bottomright',imperial:true,metric:false}).addTo(map);
+    L.control({position:'bottomright',onAdd:function(){var d=L.DomUtil.create('div','leaflet-control-northarrow');d.innerHTML='N ↑';return d;}}).addTo(map);
 
-    // Expanded bounds by ~2km
-    const sw = [origSW[0] - latBuffer, origSW[1] - lonBuffer];
-    const ne = [origNE[0] + latBuffer, origNE[1] + lonBuffer];
-    const bounds = L.latLngBounds(sw, ne);
-
-    // Initialize map with expanded pan boundary and lock zoom out to initialZoom
-    const map = L.map('map', {
-      maxBounds: bounds,
-      maxBoundsViscosity: 1.0,
-      minZoom: initialZoom
-    }).setView(initialCenter, initialZoom);
-
-    // Add base tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; CartoDB'
-    }).addTo(map);
-
-    // Add scale and north arrow
-    L.control.scale({ position: 'bottomright', imperial: true, metric: false }).addTo(map);
-    var north = L.control({ position: 'bottomright' });
-    north.onAdd = function(map) {
-      var div = L.DomUtil.create('div', 'leaflet-control-northarrow');
-      div.innerHTML = 'N ↑';
-      return div;
-    };
-    north.addTo(map);
-
-    // Fetch and draw lines & stations
-    const lineDataUrl = './data-lines.json';
-    const stationDataUrl = './data-stations.json';
-
+    // Load data
     Promise.all([
-      fetch(lineDataUrl).then(res => {
-        if (!res.ok) throw new Error('Lines JSON not found');
-        return res.json();
-      }),
-      fetch(stationDataUrl).then(res => {
-        if (!res.ok) throw new Error('Stations JSON not found');
-        return res.json();
-      })
-    ])
-    .then(([lines, stations]) => {
-      // Draw each line
-      lines.features.forEach(feature => {
-        const name = feature.properties.name;
-        L.geoJSON(feature, {
-          style: { color: lineColors[name] || '#000', weight: 4 },
-          interactive: false
-        }).addTo(map);
-      });
-
-      // Station marker prioritisation
-      const priorityOrder = ['northern', 'victoria', 'central', 'bakerloo', 'metropolitan'];
-
-      L.geoJSON(stations, {
-        pointToLayer: (feature, latlng) => {
-          // Determine lines for this station
-          const prop = feature.properties;
-          let linesArr = [];
-          if (Array.isArray(prop.lines)) {
-            linesArr = prop.lines;
-          } else if (prop.lines) {
-            linesArr = [prop.lines];
-          } else if (prop.line) {
-            linesArr = Array.isArray(prop.line) ? prop.line : [prop.line];
-          }
-          // Choose the highest priority line
-          const chosenLine = linesArr.find(l => priorityOrder.includes(l)) || linesArr[0] || '';
-          const color = lineColors[chosenLine] || '#000';
-
-          return L.circleMarker(latlng, {
-            radius: 5,
-            fillColor: color,
-            color: color,
-            weight: 0.5,
-            opacity: 1,
-            fillOpacity: 1
-          }).bindTooltip(prop.name, { permanent: false, direction: 'top' });
-        }
-      }).addTo(map);
-    })
-    .catch(err => {
-      console.error('Failed to load map data:', err);
-      alert('Map failed to load: ' + err.message);
-    });
+      fetch('./data-lines.json').then(r=>r.ok? r.json():Promise.reject('Lines missing')),
+      fetch('./data-stations.json').then(r=>r.ok? r.json():Promise.reject('Stations missing'))
+    ]).then(([lines, stations]) => {
+      // Draw lines
+      lines.features.forEach(f => L.geoJSON(f, { style:{color: lineColors[normalize(f.properties.name)]||'#000', weight:4}, interactive:false }).addTo(map));
+      // Draw stations
+      L.geoJSON(stations, { pointToLayer:(feat, latlng) => {
+          const props = feat.properties;
+          let arr = props.lines || props.line || [];
+          arr = Array.isArray(arr)? arr: [arr];
+          const norms = arr.map(normalize);
+          const pick = priorityOrder.find(p=>norms.includes(p))||norms[0]||'';
+          const col = lineColors[pick]||'#000';
+          return L.circleMarker(latlng,{radius:5, fillColor:col, color:col, weight:0.5, opacity:1, fillOpacity:1})
+                   .bindTooltip(props.name,{permanent:false,direction:'top'});
+      }}).addTo(map);
+    }).catch(e=>{console.error(e);alert('Map failed: '+e)});
   </script>
 </body>
 </html>
