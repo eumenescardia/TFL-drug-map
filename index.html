@@ -76,6 +76,10 @@
       fetch('./data-lines.json').then(r=>r.ok? r.json():Promise.reject('Lines missing')),
       fetch('./data-stations.json').then(r=>r.ok? r.json():Promise.reject('Stations missing'))
     ]).then(([lines, stations]) => {
+      // Remove unwanted stations by name
+      const removeList = ['West Drayton', 'Twickenham', 'Gospel Oak', 'Stamford Hill', 'Forest Gate'];
+      stations.features = stations.features.filter(f => !removeList.includes(f.properties.name));
+
       // Draw lines
       lines.features.forEach(f => L.geoJSON(f, { style:{color: lineColors[normalize(f.properties.name)]||'#000', weight:4}, interactive:false }).addTo(map));
       // Draw stations
