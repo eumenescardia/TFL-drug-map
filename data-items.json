@@ -1,0 +1,567 @@
+[
+  {
+    "Item": "Cannabis",
+    "Station": "Alperton",
+    "Count": 1
+  },
+  {
+    "Item": "Green grass weed",
+    "Station": "Alperton",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Arnos Grove",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Baker Street",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Bank",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Barbican",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Barking",
+    "Count": 2
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Bayswater",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Blackhorse Road",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Bond Street",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Bounds Green",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Brentwood",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Brixton",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Bromley-by-Bow",
+    "Count": 1
+  },
+  {
+    "Item": "White powder & bottle of liquid",
+    "Station": "Caledonian Road",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Camden Town",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Canning Town",
+    "Count": 2
+  },
+  {
+    "Item": "x5 Cannabis",
+    "Station": "Canons Park",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Chancery Lane",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Chancery Lane",
+    "Count": 1
+  },
+  {
+    "Item": "Crystals",
+    "Station": "Clapham Common",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Clapham Common",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Clapham South",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Cockfosters",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Colindale",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Dagenham East",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Ealing Broadway",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Earls Court",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Earls Court",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Earls Court",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "East Ham",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Edgware",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Edgware Road (Bakerloo)",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Embankment",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Epping",
+    "Count": 1
+  },
+  {
+    "Item": "White Substance",
+    "Station": "Epping",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Finchley Central",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Forest Gate",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Gospel Oak",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Green Park",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Gunnersbury",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Hammersmith (District)",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Hammersmith (District)",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Hammersmith (H&C)",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis / White powder",
+    "Station": "Hammersmith (H&C)",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Hammersmith (H&C)",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Hanger Lane",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Harlesden",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Harrow Weald",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Heathrow Terminal 5",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Heathrow Terminal 5",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "High Barnet",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "High Barnet",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Highbury & Islington",
+    "Count": 1
+  },
+  {
+    "Item": "Brown Substance",
+    "Station": "Holborn",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Holborn",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Holborn",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Holland park",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Kennington",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Kings Cross St. Pancras",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Kings Cross St. Pancras",
+    "Count": 2
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Leicester Square",
+    "Count": 1
+  },
+  {
+    "Item": "Brown hash, White Crystal",
+    "Station": "Liverpool Street",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "London Bridge",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "London Bridge",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Mansion House",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Marble Arch",
+    "Count": 1
+  },
+  {
+    "Item": "Grey powder",
+    "Station": "Moorgate",
+    "Count": 2
+  },
+  {
+    "Item": "Cream crystals",
+    "Station": "Morden",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Morden",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Mornington Crescent",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "North Greenwich",
+    "Count": 1
+  },
+  {
+    "Item": "2 Blue Pills",
+    "Station": "Northwick Park",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Nortrthumberland Depot",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Osterley",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Oval",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Oval",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Oxford Circus",
+    "Count": 3
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Oxford Circus",
+    "Count": 1
+  },
+  {
+    "Item": "Brown Substance",
+    "Station": "Paddington",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Paddington",
+    "Count": 1
+  },
+  {
+    "Item": "White Substance",
+    "Station": "Putney Bridge",
+    "Count": 1
+  },
+  {
+    "Item": "Pink crystals",
+    "Station": "Queens Park",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Queensbury",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Seven Sisters",
+    "Count": 1
+  },
+  {
+    "Item": "Clear Crystals",
+    "Station": "Seven Sisters",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Seven Sisters",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Sloane Square",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "South Harrow",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "South Wimbledon",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Southwark",
+    "Count": 2
+  },
+  {
+    "Item": "White Powder",
+    "Station": "St. James's Park",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Stamford Hill",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Stepney Green",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Stratford",
+    "Count": 2
+  },
+  {
+    "Item": "Crystals",
+    "Station": "Stratford",
+    "Count": 1
+  },
+  {
+    "Item": "Brown Powder",
+    "Station": "Tooting Broadway",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Tottenham Court Road",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Tower Hill",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Twickenham",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Victoria",
+    "Count": 2
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Victoria",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Walthamstow Central",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Warwick Avenue",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Waterloo",
+    "Count": 2
+  },
+  {
+    "Item": "White Substance",
+    "Station": "Waterloo",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Wembley Central",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Wembley Park",
+    "Count": 1
+  },
+  {
+    "Item": "White Powder",
+    "Station": "West Drayton",
+    "Count": 1
+  },
+  {
+    "Item": "X8 packs cannabis",
+    "Station": "West Ruislip",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Willesden Junction",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Wimbledon Park",
+    "Count": 2
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Wood Green",
+    "Count": 1
+  }
+]
