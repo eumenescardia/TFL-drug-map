@@ -6,19 +6,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #header { font-family: 'Goudy Old Style', serif; font-size: 26px; font-weight: bold; background: white; padding: 10px; text-align: left; }
-    #subheader { font-family: 'Goudy Old Style', serif; font-size: 14px; font-weight: normal; background: white; padding: 0 10px 10px; text-align: left; }
-    #map { height: calc(100% - 80px); }
-    #attribution { font-family: 'Goudy Old Style', serif; font-size: 10px; background: white; text-align: center; padding: 4px 0; }
-    .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 4px 6px; font-size: 12px; }
-    .leaflet-tooltip strong { display: block; margin-bottom: 2px; }
-    .leaflet-control-scale, .leaflet-control-northarrow { margin-bottom: 10px; }
-    .leaflet-control-northarrow { background: rgba(255,255,255,0.8); padding: 4px 6px; font-size: 14px; font-weight: bold; border-radius: 3px; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      font-family: 'Goudy Old Style', serif;
+      font-size: 26px;
+      font-weight: bold;
+      background: white;
+      padding: 10px;
+      text-align: left;
+    }
+    #subheader {
+      font-family: 'Goudy Old Style', serif;
+      font-size: 14px;
+      font-weight: normal;
+      background: white;
+      padding: 0 10px 10px;
+      text-align: left;
+    }
+    #map {
+      flex: 1;
+    }
+    #attribution {
+      font-family: 'Goudy Old Style', serif;
+      font-size: 10px;
+      background: white;
+      text-align: center;
+      padding: 4px 0;
+    }
+    .leaflet-tooltip {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 4px 6px;
+      font-size: 12px;
+    }
+    .leaflet-tooltip strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+    .leaflet-control-scale, .leaflet-control-northarrow {
+      margin-bottom: 10px;
+    }
+    .leaflet-control-northarrow {
+      background: rgba(255,255,255,0.8);
+      padding: 4px 6px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
-  <div id="header"Drugs on the Underground</div>
+  <div id="header">London tube map</div>
   <div id="subheader">Drugs confiscated or recorded as lost property on the London Underground since 2020</div>
   <div id="map"></div>
   <div id="attribution">Map: The Spectator • Source: FOI for TFL</div>
@@ -58,7 +102,9 @@
       minZoom: initialZoom
     }).setView(initialCenter, initialZoom);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB'
+    }).addTo(map);
     L.control.scale({ position: 'bottomright', imperial: true, metric: false }).addTo(map);
     var north = L.control({ position: 'bottomright' });
     north.onAdd = function(map) {
