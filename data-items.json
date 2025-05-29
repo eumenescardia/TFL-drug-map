@@ -206,31 +206,6 @@
   },
   {
     "Item": "Cannabis",
-    "Station": "Hammersmith (District)",
-    "Count": 1
-  },
-  {
-    "Item": "White Powder",
-    "Station": "Hammersmith (District)",
-    "Count": 1
-  },
-  {
-    "Item": "Cannabis",
-    "Station": "Hammersmith (H&C)",
-    "Count": 2
-  },
-  {
-    "Item": "Cannabis / White powder",
-    "Station": "Hammersmith (H&C)",
-    "Count": 1
-  },
-  {
-    "Item": "White crystals",
-    "Station": "Hammersmith (H&C)",
-    "Count": 2
-  },
-  {
-    "Item": "Cannabis",
     "Station": "Hanger Lane",
     "Count": 1
   },
@@ -563,5 +538,25 @@
     "Item": "Cannabis",
     "Station": "Wood Green",
     "Count": 1
+  },
+  {
+    "Item": "Cannabis",
+    "Station": "Hammersmith",
+    "Count": 3
+  },
+  {
+    "Item": "White Powder",
+    "Station": "Hammersmith",
+    "Count": 1
+  },
+  {
+    "Item": "Cannabis / White powder",
+    "Station": "Hammersmith",
+    "Count": 1
+  },
+  {
+    "Item": "White crystals",
+    "Station": "Hammersmith",
+    "Count": 2
   }
 ]
