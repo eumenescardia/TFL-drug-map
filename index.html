@@ -42,7 +42,14 @@
     const map = L.map('map',{maxBounds:bounds,maxBoundsViscosity:1.0,minZoom:initialZoom}).setView(initialCenter,initialZoom);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'&copy; CartoDB'}).addTo(map);
     L.control.scale({position:'bottomright',imperial:true,metric:false}).addTo(map);
-    L.control({position:'bottomright',onAdd:function(){const d=L.DomUtil.create('div','leaflet-control-northarrow');d.innerHTML='N ↑';return d;}}).addTo(map);
+    // Add north arrow control properly
+var north = L.control({ position: 'bottomright' });
+north.onAdd = function(map) {
+  var d = L.DomUtil.create('div', 'leaflet-control-northarrow');
+  d.innerHTML = 'N ↑';
+  return d;
+};
+north.addTo(map);
 
     // Data promises with debug logs
     console.log('Starting data fetch...');
