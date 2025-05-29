@@ -4,8 +4,6 @@
   <meta charset="utf-8" />
   <title>London Underground Map (Embedded)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Ensure relative paths resolve correctly on GitHub Pages -->
-  <base href="https://eumenescardia.github.io/TFL-drug-map/">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
@@ -73,9 +71,10 @@
 
     // Load data
     Promise.all([
-      fetch('./data-lines.json').then(r=>r.ok? r.json():Promise.reject('Lines missing')),
-      fetch('./data-stations.json').then(r=>r.ok? r.json():Promise.reject('Stations missing'))
-    ]).then(([lines, stations]) => {
+      fetch('data-lines.json').then(r=>r.ok? r.json():Promise.reject('Lines missing')),
+      fetch('data-stations.json').then(r=>r.ok? r.json():Promise.reject('Stations missing'))
+    ])
+    .then(([lines, stations]) => {
       // Remove unwanted stations by name
       const removeList = ['West Drayton', 'Twickenham', 'Gospel Oak', 'Stamford Hill', 'Forest Gate'];
       stations.features = stations.features.filter(f => !removeList.includes(f.properties.name));
@@ -93,7 +92,8 @@
           return L.circleMarker(latlng,{radius:5, fillColor:col, color:col, weight:0.5, opacity:1, fillOpacity:1})
                    .bindTooltip(props.name,{permanent:false,direction:'top'});
       }}).addTo(map);
-    }).catch(e=>{console.error(e);alert('Map failed: '+e)});
+    })
+    .catch(e=>{console.error(e);alert('Map failed: '+e)});
   </script>
 </body>
 </html>
