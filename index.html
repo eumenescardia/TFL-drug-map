@@ -8,7 +8,9 @@
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     #header { font-family: 'Goudy Old Style', serif; font-size: 26px; font-weight: bold; background: white; padding: 10px; text-align: left; }
-    #map { height: calc(100% - 50px); }
+    #subheader { font-family: 'Goudy Old Style', serif; font-size: 14px; font-weight: normal; background: white; padding: 0 10px 10px; text-align: left; }
+    #map { height: calc(100% - 80px); }
+    #attribution { font-family: 'Goudy Old Style', serif; font-size: 10px; background: white; text-align: center; padding: 4px 0; }
     .leaflet-tooltip { background: white; border: 1px solid #ccc; padding: 4px 6px; font-size: 12px; }
     .leaflet-tooltip strong { display: block; margin-bottom: 2px; }
     .leaflet-control-scale, .leaflet-control-northarrow { margin-bottom: 10px; }
@@ -17,7 +19,9 @@
 </head>
 <body>
   <div id="header">London tube map</div>
+  <div id="subheader">Drugs confiscated or recorded as lost property on the London Underground since 2020</div>
   <div id="map"></div>
+  <div id="attribution">Map: The Spectator • Source: FOI for TFL</div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -35,8 +39,7 @@
 
     // Map setup
     const initialCenter = [51.5074, -0.1278];
-    // Increase default zoom by ~10%
-    const initialZoom = 11;  // was 10, now ~10% closer
+    const initialZoom = 11;
     const latFactor = 1/111000;
     const lonFactor = 1/(111000 * Math.cos(initialCenter[0] * Math.PI/180));
     const buf = 2000;
@@ -70,26 +73,21 @@
     const stationsUrl = 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-stations.json';
     const itemsUrl = 'https://raw.githubusercontent.com/eumenescardia/TFL-drug-map/main/data-items.json';
 
-    console.log('Fetching data from', linesUrl, stationsUrl, itemsUrl);
-
     const linesPromise = fetch(linesUrl).then(r => { if (!r.ok) throw new Error('Lines missing'); return r.json(); });
     const stationsPromise = fetch(stationsUrl).then(r => { if (!r.ok) throw new Error('Stations missing'); return r.json(); });
     const itemsPromise = fetch(itemsUrl).then(r => r.ok ? r.json() : []).catch(() => []);
 
     Promise.all([linesPromise, stationsPromise, itemsPromise])
       .then(([lines, stations, items]) => {
-        // Build items map
         const itemsMap = {};
         items.forEach(row => {
           if (!itemsMap[row.Station]) itemsMap[row.Station] = [];
           itemsMap[row.Station].push({ item: row.Item, count: row.Count });
         });
 
-        // Filter out unwanted stations
         const removeList = ['West Drayton','Twickenham','Gospel Oak','Stamford Hill','Forest Gate'];
         stations.features = stations.features.filter(f => !removeList.includes(f.properties.name));
 
-        // Draw lines
         lines.features.forEach(f => {
           L.geoJSON(f, {
             style: { color: lineColors[normalize(f.properties.name)] || '#000', weight: 4 },
@@ -97,7 +95,6 @@
           }).addTo(map);
         });
 
-        // Draw stations
         L.geoJSON(stations, {
           pointToLayer: (feat, latlng) => {
             const props = feat.properties;
