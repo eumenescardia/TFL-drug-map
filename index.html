@@ -51,21 +51,41 @@
       waterloo_and_city: "#95CDBA"
     };
 
-    // Use relative URLs so these work on GitHub Pages without hardcoding the domain
-    const lineDataUrl = './data-lines.json';
-    const stationDataUrl = './data-stations.json';
+    // Define initial view parameters
+    const initialCenter = [51.5074, -0.1278];
+    const initialZoom = 10;
 
+    // Calculate ~2km buffer in degrees
+    const latFactor = 1 / 111000; // degrees lat per meter
+    const lonFactor = 1 / (111000 * Math.cos(initialCenter[0] * Math.PI / 180));
+    const bufferMeters = 2000;
+    const latBuffer = bufferMeters * latFactor;
+    const lonBuffer = bufferMeters * lonFactor;
+
+    // Original bounds
+    const origSW = [51.28, -0.53];
+    const origNE = [51.70, 0.30];
+
+    // Expanded bounds by ~2km
+    const sw = [origSW[0] - latBuffer, origSW[1] - lonBuffer];
+    const ne = [origNE[0] + latBuffer, origNE[1] + lonBuffer];
+    const bounds = L.latLngBounds(sw, ne);
+
+    // Initialize map with expanded pan boundary and lock zoom out to initialZoom
     const map = L.map('map', {
-      maxBounds: [[51.28, -0.53], [51.70, 0.30]],
-      maxBoundsViscosity: 1.0
-    }).setView([51.5074, -0.1278], 10);
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: initialZoom
+    }).setView(initialCenter, initialZoom);
 
+    // Add base tiles
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; CartoDB'
+      attribution: '&copy; CartoDB',
+      // You can also set a maxZoom here if desired (e.g., maxZoom: 18)
     }).addTo(map);
 
+    // Add scale and north arrow
     L.control.scale({ position: 'bottomright', imperial: true, metric: false }).addTo(map);
-
     var north = L.control({ position: 'bottomright' });
     north.onAdd = function(map) {
       var div = L.DomUtil.create('div', 'leaflet-control-northarrow');
@@ -73,6 +93,10 @@
       return div;
     };
     north.addTo(map);
+
+    // Fetch and draw lines & stations
+    const lineDataUrl = './data-lines.json';
+    const stationDataUrl = './data-stations.json';
 
     Promise.all([
       fetch(lineDataUrl).then(res => {
@@ -84,33 +108,33 @@
         return res.json();
       })
     ])
-      .then(([lines, stations]) => {
-        lines.features.forEach(feature => {
-          const name = feature.properties.name;
-          L.geoJSON(feature, {
-            style: { color: lineColors[name] || '#000', weight: 4 },
-            interactive: false
-          }).addTo(map);
-        });
-
-        L.geoJSON(stations, {
-          pointToLayer: (feature, latlng) => {
-            const color = lineColors[feature.properties.line] || '#000';
-            return L.circleMarker(latlng, {
-              radius: 5,
-              fillColor: color,
-              color: color,
-              weight: 0.5,
-              opacity: 1,
-              fillOpacity: 1
-            }).bindTooltip(feature.properties.name, { permanent: false, direction: 'top' });
-          }
+    .then(([lines, stations]) => {
+      lines.features.forEach(feature => {
+        const name = feature.properties.name;
+        L.geoJSON(feature, {
+          style: { color: lineColors[name] || '#000', weight: 4 },
+          interactive: false
         }).addTo(map);
-      })
-      .catch(err => {
-        console.error('Failed to load map data:', err);
-        alert('Map failed to load: ' + err.message);
       });
+
+      L.geoJSON(stations, {
+        pointToLayer: (feature, latlng) => {
+          const color = lineColors[feature.properties.line] || '#000';
+          return L.circleMarker(latlng, {
+            radius: 5,
+            fillColor: color,
+            color: color,
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 1
+          }).bindTooltip(feature.properties.name, { permanent: false, direction: 'top' });
+        }
+      }).addTo(map);
+    })
+    .catch(err => {
+      console.error('Failed to load map data:', err);
+      alert('Map failed to load: ' + err.message);
+    });
   </script>
 </body>
 </html>
